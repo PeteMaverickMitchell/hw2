@@ -57,19 +57,28 @@ def new_page(request):
                 "title": title,
                 "content": html_content
             })
-
-def edit(request):   
+            
+def edit(request):
+    print("Request method:", request.method)
     if request.method == 'POST':
-        title = request.POST['entry_title']
-        content = util.get_entry(title)      
-        return render(request, "encyclopedia/edit.html", {
-            "title": title,
-            "content": content
-        })
+        title = request.POST.get('entry_title', 'DefaultTitle')
+        print("Editing title:", title)
+        content = util.get_entry(title)
+        print("Content found:", content is not None)
+        if content:
+            return render(request, "encyclopedia/edit.html", {
+                "title": title,
+                "content": content
+            })
+        else:
+            return render(request, "encyclopedia/error.html", {
+                "message": "The requested page does not exist."
+            })
+
         
 def save_edit(request):
     if request.method == "POST":
-        title = request.POST['entry_title']
+        title = request.POST['title']
         content = request.POST['content']
         util.save_entry(title, content)
         html_content = util.get_entry(title)
